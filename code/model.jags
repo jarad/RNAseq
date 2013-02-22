@@ -1,0 +1,20 @@
+model {
+  for (g in 1:G) {
+    for (i in 1:3) {
+      for (j in 1:n) {
+        y[g,i,j] ~ dpois(lambda[g,i,j])
+        lambda[g,i,j] <- c[i,j]*exp(mu[g,i]+epsilon[g,i,j])
+        epsilon[g,i,j] ~ dnorm(0,sigma[g])
+      }
+    }
+    mu[g,1] <- phi[g] - alpha[g]
+    mu[g,2] <- phi[g] + delta[g]
+    mu[g,3] <- phi[g] + alpha[g]
+
+    phi[g]   ~ dnorm(0.0, 1.0)
+    alpha[g] ~ dnorm(0.0, 1.0)
+    delta[g] ~ dnorm(0.0, 1.0)
+    sigma[g] ~ dunif(0,10);
+  } 
+}
+
