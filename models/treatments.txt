@@ -1,6 +1,6 @@
 model {
   for (i in 1:N) {
-    y[i] ~ dpois(exp(mu[gene[i],treatment[i]]+e[i]))
+    y[i] ~ dpois(c[i]*exp(mu[gene[i],treatment[i]]+e[i]))
     e[i] ~ dnorm(0, tau[gene[i]])
   }
 
