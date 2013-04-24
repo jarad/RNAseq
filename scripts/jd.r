@@ -7,7 +7,8 @@ library(plyr)
 
 d = read.table("../data/jd.txt", header=T)
 d = d[which(apply(d,1,median)>0),]
-d = d[1:100,]
+set.seed(1)
+d = d[sample(nrow(d), 200),]
 
 d$gene = 1:nrow(d)
 use = c(grep("T32", names(d)),grep("T16", names(d)),grep("gene", names(d)))
@@ -75,11 +76,11 @@ mu = matrix(log(aggregate(y~gene+treatment,dat,mean)$y+.1), dat$G,2)
 # Initial values
 inits = list(alpha = rowMeans(mu), deltaNotZero = 2*(mu[,1]-mu[,2]), Z=rep(0,dat$G))
 
-m = jags.model(textConnection(model), dat, inits, n.chains=3, n.adapt=1e4)
+m = jags.model(textConnection(model), dat, inits, n.chains=3, n.adapt=1e5)
 
 hyper_parms = c("alpha.theta", "alpha.sigma", "delta.pi", "delta.theta", "delta.sigma", "d", "tau0"
 , "c.sigma")
-parms = c(hyper_parms,"Z","alpha","delta","c")
+parms = c(hyper_parms,"Z","alpha","delta","c","deltaNotZero")
 res = coda.samples(m, parms, 1e5, thin=100)
 save.image("jd-res.RData")
 

@@ -1,6 +1,6 @@
-load("jd-res.RData")
+library(rjags)
 
-gelman.diag(res)
+load("jd-res.RData")
 
 vp = function(str,max) {
   paste(str,"[",1:max,"]",sep="")
@@ -10,26 +10,40 @@ plot(res[,vp("c",dat$J)], ask=T)
 
 #plot(res[,vp("alpha",dat$G)])
 
+gr = gelman.diag(res, mult=F)
+max(gr$psrf[,2])
+
+res = window(res,start=60100)
+
+
 gelman.diag(res[,hyper_parms])
 
 
 alpha_summary = summary(res[,vp("alpha",dat$G)])
 delta_summary = summary(res[,vp("delta",dat$G)])
+deltanz_summary = summary(res[,vp("deltaNotZero",dat$G)])
+z_summary = summary(res[,vp("Z",dat$G)])
 c_summary     = summary(res[,vp("c",dat$J)])
 
 
 
 summary(res[,"delta.pi"]) 
 
-
 # Summary of non-differentially expressed genes
-z_summary = summary(res[,vp("Z",dat$G)])
+delta = deltanz_summary$quantiles[,3]
 zp = z_summary$statistics[,1]
-plot(delta, 1-zp, ylab="Probability of signal", xlab="Estimated difference", pch=19, cex=0.5)
+plot(delta, 1-zp, ylab="Probability of signal", xlab="Estimated non-zero difference", pch=19, cex=0.5,
+     ylim=c(0,1), xlim=range(delta))
+segments(deltanz_summary$quantiles[,2],
+         1-zp,
+         deltanz_summary$quantiles[,4],
+         1-zp)
 
 
 
-absdelta = abs(delta_summary$quantiles[,3])
+
+
+delta_summary$quantiles[,3]
 ordr = order(absdelta)
 
 par(mfrow=c(1,2))
